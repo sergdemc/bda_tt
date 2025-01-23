@@ -20,8 +20,8 @@ class BaseModel(Base):
 class Product(BaseModel):
     __tablename__ = 'products'
 
-    product_number: Mapped[int] = mapped_column(unique=True, nullable=False, index=True)
-    product_name: Mapped[str] = mapped_column(unique=True, nullable=False)
+    artikul: Mapped[int] = mapped_column(unique=True, nullable=False, index=True)
+    name: Mapped[str] = mapped_column(unique=True, nullable=False)
     price: Mapped[float] = mapped_column(nullable=False)
     rating: Mapped[float] = mapped_column(default=0.0, nullable=False)
     stock_quantity: Mapped[int] = mapped_column(nullable=False)

@@ -1,35 +1,47 @@
+from src.schemas import ProductCreateScheme
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.models import Product
-from src.schemas import ProductResponseScheme
-from src.services.scheduler import scheduler
 
 WB_API_URL = "https://card.wb.ru/cards/v1/detail?appType=1&curr=rub&dest=-1257786&spp=30&nm={}"
 
 
-async def fetch_product_data(artikul: int, db: AsyncSession) -> ProductResponseScheme:
-    """
-    Получение данных о товаре из Wildberries API и сохранение в БД.
-    """
+async def fetch_product_data(artikul: int) -> ProductCreateScheme | dict:
     url = WB_API_URL.format(artikul)
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url)
-        if response.status_code != 200:
-            raise ValueError(f"Failed to fetch product data for artikul {artikul}.")
 
-        product_data = response.json()["data"]["products"][0]
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            response.raise_for_status()  # Проверяем статус ответа (выбросит httpx.HTTPStatusError при ошибке)
 
-        product = Product(
-            artikul=product_data["id"],
-            name=product_data["name"],
-            price=product_data["price"] / 100,
-            rating=product_data["rating"],
-            stock_quantity=sum(stock["qty"] for stock in product_data["sizes"][0]["stocks"]),
+        data = response.json()
+
+        if not data.get("data") or not data["data"].get("products"):
+            return {'msg': f"Product with artikul {artikul} not found."}
+
+        product_data = data["data"]["products"][0]
+        name = product_data["name"]
+        price = product_data["price"] / 100
+        rating = product_data["rating"]
+        stock_quantity = sum(stock["qty"] for stock in product_data["sizes"][0]["stocks"])
+
+        return ProductCreateScheme(
+            artikul=artikul, name=name, price=price, rating=rating, stock_quantity=stock_quantity
         )
 
-        # Сохранение в БД
-        db.add(product)
-        await db.commit()
-        await db.refresh(product)
+    except httpx.RequestError as e:
+        raise RuntimeError(f"Network error occurred: {e}")
+    except KeyError as e:
+        raise ValueError(f"Invalid response format: missing key {e}")
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error: {e}")
 
-    return ProductResponseScheme.from_orm(product)
+
+# async def schedule_subscription(artikul: int, db: AsyncSession):
+#     """
+#     Запуск задачи для обновления данных о товаре каждые 30 минут.
+#     """
+#
+#     async def fetch_and_update():
+#         await fetch_product_data(artikul=artikul, db=db)
+#
+#     scheduler.add_job(fetch_and_update, "interval", minutes=30, id=f"update_{artikul}")
