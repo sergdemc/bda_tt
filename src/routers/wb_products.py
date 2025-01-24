@@ -1,15 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends
 
-from src.schemas import ProductCreateScheme, ProductResponseScheme, ProductRequestScheme
-from src.db import get_async_session, AsyncSession
-from src.services.wildberries import fetch_product_data
-from src.repositories.products import ProductRepository
+from schemas import ProductCreateScheme, ProductResponseScheme, ProductRequestScheme
+from db import get_async_session, AsyncSession
+from services.wildberries import fetch_product_data
+from repositories.products import ProductRepository
 
-router = APIRouter(tags=['Products'])
+router = APIRouter(prefix='/products', tags=['Products'])
 
 
 @router.post(
-    "/products",
+    '/',
     response_model=ProductResponseScheme,
     status_code=201,
     name='create_product',
@@ -21,10 +21,10 @@ async def create_product(
     repo = ProductRepository(db)
 
     try:
-        product: ProductCreateScheme | dict = await fetch_product_data(artikul=data.artikul)
-        if isinstance(product, dict):
-            raise ValueError
-        db_product = await repo.create_product(product.model_dump())
+        product: ProductCreateScheme = await fetch_product_data(artikul=data.artikul)
+
+        db_product = await repo.create_or_update(**product.model_dump())
+        db_product.updated_at = db_product.updated_at.strftime("%Y-%m-%d %H:%M:%S")
         return ProductResponseScheme.from_orm(db_product)
 
     except ValueError as e:
@@ -36,7 +36,7 @@ async def create_product(
 
 
 @router.get(
-    "/products/{artikul}",
+    '/{artikul}',
     response_model=ProductResponseScheme,
     status_code=200,
     name='get_product',
@@ -48,20 +48,9 @@ async def get_product(artikul: int, db: AsyncSession = Depends(get_async_session
         product = await repo.get_product_by_artikul(artikul)
         if not product:
             raise ValueError(f"Product with artikul {artikul} not found.")
+        product.updated_at = product.updated_at.strftime("%Y-%m-%d %H:%M:%S")
         return ProductResponseScheme.from_orm(product)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
-
-# @router.get("/subscribe/{artikul}")
-# async def subscribe_product(artikul: int, db: AsyncSession = Depends(get_async_session)):
-#     """
-#     Эндпоинт для подписки на обновление товара каждые 30 минут.
-#     """
-#     try:
-#         await schedule_subscription(artikul=artikul, db=db)
-#         return {"message": f"Subscription for product {artikul} started."}
-#     except Exception as e:
-#         raise HTTPException(status_code=400, detail=str(e))

@@ -9,7 +9,7 @@ db:
 	docker run --rm -d -p 5432:5432 -e POSTGRES_USER=dbuser -e POSTGRES_PASSWORD=dbpassword -e POSTGRES_DB=dbname postgres:15.1-alpine
 
 server:
-	cd app && python main.py
+	cd src && python main.py
 
 requirements:
 	poetry export -f requirements.txt --output requirements.txt --without-hashes --with dev

@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import NoResultFound
-from src.models import Product
+from models import Product
 
 
 class ProductRepository:
@@ -9,10 +9,18 @@ class ProductRepository:
         self.db = db
 
     async def get_product_by_artikul(self, artikul: int) -> Product | None:
-
         query = select(Product).where(Product.artikul == artikul)
         result = await self.db.execute(query)
         return result.scalars().first()
+
+    async def create_or_update(
+            self, artikul: int, name: str, price: float, rating: float, stock_quantity: int
+    ) -> Product:
+
+        product = await self.get_product_by_artikul(artikul)
+        if product:
+            return await self.update_product(product, name, price, rating, stock_quantity)
+        return await self.create_product(artikul, name, price, rating, stock_quantity)
 
     async def create_product(
             self, artikul: int, name: str, price: float, rating: float, stock_quantity: int

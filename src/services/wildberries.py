@@ -1,28 +1,27 @@
-from src.schemas import ProductCreateScheme
 import httpx
-from sqlalchemy.ext.asyncio import AsyncSession
+
+from schemas import ProductCreateScheme
 
 WB_API_URL = "https://card.wb.ru/cards/v1/detail?appType=1&curr=rub&dest=-1257786&spp=30&nm={}"
 
 
-async def fetch_product_data(artikul: int) -> ProductCreateScheme | dict:
+async def fetch_product_data(artikul: int) -> ProductCreateScheme:
     url = WB_API_URL.format(artikul)
 
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
-            response.raise_for_status()  # Проверяем статус ответа (выбросит httpx.HTTPStatusError при ошибке)
+            response.raise_for_status()
 
         data = response.json()
-
         if not data.get("data") or not data["data"].get("products"):
-            return {'msg': f"Product with artikul {artikul} not found."}
+            raise ValueError("Invalid response format: missing key 'data' or 'products'")
 
         product_data = data["data"]["products"][0]
         name = product_data["name"]
-        price = product_data["price"] / 100
+        price = product_data["priceU"] / 100
         rating = product_data["rating"]
-        stock_quantity = sum(stock["qty"] for stock in product_data["sizes"][0]["stocks"])
+        stock_quantity = product_data["totalQuantity"]
 
         return ProductCreateScheme(
             artikul=artikul, name=name, price=price, rating=rating, stock_quantity=stock_quantity
@@ -34,14 +33,3 @@ async def fetch_product_data(artikul: int) -> ProductCreateScheme | dict:
         raise ValueError(f"Invalid response format: missing key {e}")
     except Exception as e:
         raise RuntimeError(f"Unexpected error: {e}")
-
-
-# async def schedule_subscription(artikul: int, db: AsyncSession):
-#     """
-#     Запуск задачи для обновления данных о товаре каждые 30 минут.
-#     """
-#
-#     async def fetch_and_update():
-#         await fetch_product_data(artikul=artikul, db=db)
-#
-#     scheduler.add_job(fetch_and_update, "interval", minutes=30, id=f"update_{artikul}")
