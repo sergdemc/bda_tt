@@ -24,7 +24,7 @@ test-in-docker:
 	docker-compose -f docker-compose-test.yml up --build --exit-code-from web-app-test --remove-orphans
 
 isort:
-	isort app
+	isort src
 
 worker:
 	poetry run celery -A app.app_tasks.tasks worker -B -l info -Q sync_db_with_excel -c 1

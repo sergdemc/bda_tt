@@ -1,12 +1,10 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import Message
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State
 import httpx
 
 from bot.states import ProductState
-# from bot.keyboards import get_product_keyboard
 from bot.config import config
 import bot.keyboards as kb
 

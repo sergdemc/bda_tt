@@ -53,7 +53,6 @@ app.include_router(products_router, prefix='/api/v1')
 app.include_router(subscription_router, prefix='/api/v1')
 
 
-
 async def main():
     await create_tables()
 

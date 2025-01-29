@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 
 from services.subscription import SubscriptionService
-from db import get_async_session, AsyncSession
 from scheduler import scheduler
 
 router = APIRouter(prefix='/subscribe', tags=['Subscriptions'])
