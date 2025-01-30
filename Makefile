@@ -31,3 +31,12 @@ worker:
 
 pycache:
 	poetry run pyclean -v .
+
+bot:
+	PYTHONPATH=$(PWD)/src poetry run python src/bot/main.py
+
+stop-bot:
+	-ps aux | grep bot/main.py | grep -v grep | awk '{print $$2}' | xargs -r kill -2 || true
+
+
+
