@@ -1,5 +1,5 @@
 # BDA test task
-FastAPI CRUD application with Telegram Bot as a client.
+FastAPI CRUD application with Telegram as a client.
 
 ## Installation
 
@@ -16,7 +16,7 @@ Python 3.10+
 
 #### Docker
 
-The project uses Docker to run the database. To install Docker use its [official instruction](https://docs.docker.com/get-docker/).
+The project uses Docker to run the service with the database. To install Docker use its [official instruction](https://docs.docker.com/get-docker/).
 
 ### Application
 
