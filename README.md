@@ -36,7 +36,7 @@ make install
 
 For start the application you need to create `.env` file in the root directory of the project. You can use `.env.example` as a template.
 
-Start the application and PostgreSQL database in the Docker containers by running:
+Start the application in the Docker containers by running:
 ```bash
 make start
 ```

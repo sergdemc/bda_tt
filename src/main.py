@@ -59,4 +59,4 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
-    uvicorn.run('main:app', host='0.0.0.0', port=PORT or 8080, reload=True, workers=3)
+    uvicorn.run('main:app', host='0.0.0.0', port=PORT, reload=True, workers=3)
