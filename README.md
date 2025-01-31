@@ -1,5 +1,10 @@
 # BDA test task
 FastAPI CRUD application with Telegram as a client.
+___
+#### Swagger API documentation is available at https://backend-production-6ab4.up.railway.app/docs.
+
+#### The bot is available at https://t.me/get_info_bda_bot.
+___
 
 ## Installation
 
@@ -20,7 +25,7 @@ The project uses Docker to run the service. To install Docker use its [official 
 
 ### Application
 
-To use the application, you need to clone the repository to your computer. This is done using the `git clone` command. Clone the project:
+To local use the application, you need to clone the repository to your computer. This is done using the `git clone` command. Clone the project:
 
 ```bash
 git clone git@github.com:sergdemc/bda_tt.git && cd bda_tt
