@@ -31,7 +31,7 @@ services:
         env_file:
             - .env
         environment:
-            - API_URL=http://web-app:8000
+            - API_URL=web-app:8000
             - DB_HOST=postgres_db
         command: >
             sh -c "python main.py"

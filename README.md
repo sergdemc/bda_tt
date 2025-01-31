@@ -49,15 +49,6 @@ _By default, the server will be available at http://127.0.0.1:8000._
 
 _API documentation is available at http://127.0.0.1:8000/docs._
 
-Start the bot by running:
-```bash
-make bot
-```
-Stop the bot by running:
-```bash
-make stop-bot
-```
-
 Stop the application by running
 ```bash
 make stop
