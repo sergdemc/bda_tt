@@ -33,10 +33,8 @@ async def handle_artikul_input(message: Message, state: FSMContext):
         await message.answer("Пожалуйста, введите корректный артикул (только цифры).")
         return
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(follow_redirects=True) as client:
         response = await client.get(f"http://{config.API_URL}/api/v1/products/{artikul}")
-        if response.status_code == 307:
-            response = await client.get(f"https://{config.API_URL}/api/v1/products/{artikul}")
 
     if response.status_code == 200:
         product = response.json()
